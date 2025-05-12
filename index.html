@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Alquiler</title>
+  <style>
+    :root {
+      --color-primary: #B8D8D8;
+      --color-secondary: #D9B8D8;
+      --color-accent: #F4BFDB;
+      --color-text: #4A4A4A;
+      --color-light: #F7F7F7;
+      --color-border: #E0E0E0;
+      --color-warning: #FF9E7D;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #F5F5F5;
+      color: var(--color-text);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      color: #7A9CC6;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .app-container {
+      width: 90%;
+      max-width: 1200px;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #6D6875;
+      font-size: 0.9em;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background-color: var(--color-light);
+      font-size: 0.95em;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(244, 191, 219, 0.2);
+    }
+
+    .button-group {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: #7A9CC6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #678BB1;
+    }
+
+    .btn-secondary {
+      background-color: #B8D8D8;
+      color: var(--color-text);
+    }
+
+    .btn-secondary:hover {
+      background-color: #A5C5C5;
+    }
+
+    /* Modal de resumen */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      padding: 30px;
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #999;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
+
+    .close-modal:hover {
+      color: #666;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #EEE;
+    }
+
+    .summary-total {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #7A9CC6;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px solid #EEE;
+    }
+
+    .highlight {
+      color: #7A9CC6;
+      font-weight: 500;
+    }
+
+    .warning {
+      color: var(--color-warning);
+      font-weight: 500;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 25px;
+      gap: 10px;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .modal, .modal * {
+        visibility: visible;
+      }
+      .modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-color: white;
+        width: 100%;
+        height: auto;
+        box-shadow: none;
+      }
+      .close-modal, .modal-footer {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .button-group {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      button {
+        width: 100%;
+      }
+
+      .modal-footer {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <h2>Gestión de Alquiler</h2>
+  
+  <div class="form-grid">
+    <!-- Columna 1 -->
+    <div class="form-group">
+      <label for="mes">Mes de Alquiler</label>
+      <select id="mes">
+        <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+        <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+        <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="alquiler">Importe de Alquiler</label>
+      <input type="number" id="alquiler" step="0.01" placeholder="0.00">
+    </div>
+    
+    <div class="form-group">
+      <label for="moneda">Moneda</label>
+      <select id="moneda" onchange="mostrarCotizacion()">
+        <option value="ARS">Peso Argentino (ARS)</option>
+        <option value="USD">Dólar (USD)</option>
+      </select>
+    </div>
+    
+    <!-- Columna 2 -->
+    <div class="form-group" id="cotizacionGroup" style="display:none;">
+      <label for="cotizacion">Cotización del dólar</label>
+      <input type="number" id="cotizacion" step="0.01" placeholder="0.00">
+    </div>
+    
+    <div class="form-group">
+      <label for="aysa">Factura AYSA</label>
+      <input type="number" id="aysa" step="0.01" placeholder="0.00">
+    </div>
+    
+    <div class="form-group">
+      <label for="municipal">Factura Municipal</label>
+      <input type="number" id="municipal" step="0.01" placeholder="0.00">
+    </div>
+    
+    <!-- Columna 3 -->
+    <div class="form-group">
+      <label for="otros">Otros gastos (opcional)</label>
+      <input type="number" id="otros" step="0.01" placeholder="0.00">
+    </div>
+    
+    <div class="form-group">
+      <label for="vencimiento">Fecha de vencimiento</label>
+      <input type="date" id="vencimiento">
+    </div>
+    
+    <div class="form-group">
+      <label for="pago">Fecha de pago</label>
+      <input type="date" id="pago">
+    </div>
+  </div>
+  
+  <div class="button-group">
+    <button class="btn-primary" onclick="calcular()">Calcular Total</button>
+  </div>
+</div>
+
+<!-- Modal de resumen -->
+<div id="modalResumen" class="modal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="cerrarModal()">&times;</button>
+    <h3 id="resumenTitulo">Resumen de Pagos</h3>
+    <div id="resumenContenido"></div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="cerrarModal()">Cerrar</button>
+      <button class="btn-primary" onclick="window.print()">Imprimir Resumen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function mostrarCotizacion() {
+    const moneda = document.getElementById('moneda').value;
+    document.getElementById('cotizacionGroup').style.display = moneda === 'USD' ? 'block' : 'none';
+  }
+
+  function calcular() {
+    const alquiler = parseFloat(document.getElementById('alquiler').value) || 0;
+    const moneda = document.getElementById('moneda').value;
+    const cotizacion = parseFloat(document.getElementById('cotizacion').value) || 0;
+    const aysa = parseFloat(document.getElementById('aysa').value) || 0;
+    const municipal = parseFloat(document.getElementById('municipal').value) || 0;
+    const otros = parseFloat(document.getElementById('otros').value) || 0;
+    const vencimiento = new Date(document.getElementById('vencimiento').value);
+    const pago = new Date(document.getElementById('pago').value);
+    const mes = document.getElementById('mes').value;
+
+    let alquilerEnPesos = alquiler;
+    if (moneda === 'USD') {
+      if (cotizacion === 0) {
+        alert('Por favor ingrese la cotización actual del dólar.');
+        return;
+      }
+      alquilerEnPesos = alquiler * cotizacion;
+    }
+
+    const totalSinInteres = alquilerEnPesos + aysa + municipal + otros;
+
+    let interes = 0;
+    let diasDiferencia = 0;
+    if (pago > vencimiento) {
+      diasDiferencia = Math.ceil((pago - vencimiento) / (1000 * 60 * 60 * 24));
+      interes = totalSinInteres * 0.01 * diasDiferencia;
+    }
+
+    const totalFinal = totalSinInteres + interes;
+
+    // Formatear fechas
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const vencimientoStr = vencimiento.toLocaleDateString('es-AR', options);
+    const pagoStr = pago.toLocaleDateString('es-AR', options);
+
+    // Generar contenido del resumen
+    let contenidoHTML = `
+      <div class="summary-item">
+        <span>Mes:</span>
+        <span><strong>${mes}</strong></span>
+      </div>
+      
+      <div class="summary-item">
+        <span>Alquiler (${moneda}):</span>
+        <span>${moneda === 'ARS' ? '$' : 'US$'}${alquiler.toFixed(2)}</span>
+      </div>
+    `;
+    
+    if (moneda === 'USD') {
+      contenidoHTML += `
+        <div class="summary-item">
+          <span>Equivalente en ARS:</span>
+          <span>$${alquilerEnPesos.toFixed(2)} (Cotización $${cotizacion})</span>
+        </div>
+      `;
+    }
+    
+    contenidoHTML += `
+      <div class="summary-item">
+        <span>AYSA:</span>
+        <span>$${aysa.toFixed(2)}</span>
+      </div>
+      
+      <div class="summary-item">
+        <span>Municipal:</span>
+        <span>$${municipal.toFixed(2)}</span>
+      </div>
+      
+      <div class="summary-item">
+        <span>Otros gastos:</span>
+        <span>$${otros.toFixed(2)}</span>
+      </div>
+      
+      <div class="summary-item">
+        <span>Vencimiento:</span>
+        <span>${vencimientoStr}</span>
+      </div>
+      
+      <div class="summary-item">
+        <span>Fecha de pago:</span>
+        <span>${pagoStr}</span>
+      </div>
+      
+      <div class="summary-item">
+        <span>Subtotal:</span>
+        <span>$${totalSinInteres.toFixed(2)}</span>
+      </div>
+    `;
+    
+    if (interes > 0) {
+      contenidoHTML += `
+        <div class="summary-item warning">
+          <span>Días de atraso:</span>
+          <span>${diasDiferencia} día${diasDiferencia !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="summary-item warning">
+          <span>Interés por mora (1% por día):</span>
+          <span>$${interes.toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    contenidoHTML += `
+      <div class="summary-total">
+        <span>Total a pagar:</span>
+        <span>$${totalFinal.toFixed(2)}</span>
+      </div>
+    `;
+    
+    // Mostrar modal
+    document.getElementById('resumenTitulo').textContent = `Resumen de Pagos – ${mes}`;
+    document.getElementById('resumenContenido').innerHTML = contenidoHTML;
+    document.getElementById('modalResumen').style.display = 'flex';
+  }
+
+  function cerrarModal() {
+    document.getElementById('modalResumen').style.display = 'none';
+  }
+
+  // Cerrar modal al hacer clic fuera del contenido
+  window.onclick = function(event) {
+    const modal = document.getElementById('modalResumen');
+    if (event.target === modal) {
+      cerrarModal();
+    }
+  }
+</script>
+
+</body>
+</html>
